@@ -84,7 +84,9 @@ static NSString *_bundleId = nil;
     
     status = SecItemAdd ((LOCKBOX_DICTREF) dict, NULL);
     if (status == errSecDuplicateItem) {
-        status = SecItemUpdate((LOCKBOX_DICTREF) dict, NULL);
+        [dict removeObjectForKey: (LOCKBOX_ID) kSecValueData];
+        NSDictionary *changes = @{ (LOCKBOX_ID) kSecValueData: [obj dataUsingEncoding:NSUTF8StringEncoding] };
+        status = SecItemUpdate((LOCKBOX_DICTREF) dict, (LOCKBOX_DICTREF) changes);
         if (status != errSecSuccess)
             DLog(@"SecItemUpdate failed for key %@: %d", hierKey, (int)status);
     }
