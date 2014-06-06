@@ -84,11 +84,9 @@ static NSString *_bundleId = nil;
     
     status = SecItemAdd ((LOCKBOX_DICTREF) dict, NULL);
     if (status == errSecDuplicateItem) {
-        NSMutableDictionary *query = [self _query];
-        [query setObject:hierKey forKey:(LOCKBOX_ID)kSecAttrService];
-        status = SecItemDelete((LOCKBOX_DICTREF)query);
-        if (status == errSecSuccess)
-            status = SecItemAdd((LOCKBOX_DICTREF) dict, NULL);
+        status = SecItemUpdate((LOCKBOX_DICTREF) dict, NULL);
+        if (status != errSecSuccess)
+            DLog(@"SecItemUpdate failed for key %@: %d", hierKey, (int)status);
     }
     if (status != errSecSuccess)
         DLog(@"SecItemAdd failed for key %@: %d", hierKey, (int)status);
