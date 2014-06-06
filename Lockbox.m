@@ -94,12 +94,15 @@ static NSString *_bundleId = nil;
     return (status == errSecSuccess);
 }
 
-+(NSString *)objectForKey:(NSString *)key
++(NSString *)objectForKey:(NSString *)key authorizationPrompt:(NSString *)prompt
 {
     NSString *hierKey = [self _hierarchicalKey:key];
 
     NSMutableDictionary *query = [self _query];
     [query setObject:hierKey forKey: (LOCKBOX_ID)kSecAttrService];
+    if (prompt) {
+        [query setObject: (LOCKBOX_ID) prompt forKey: (LOCKBOX_ID) kSecUseOperationPrompt];
+    }
 
     CFDataRef data = nil;
     OSStatus status =
@@ -139,7 +142,12 @@ static NSString *_bundleId = nil;
 
 +(NSString *)stringForKey:(NSString *)key
 {
-    return [self objectForKey:key];
+    return [self stringForKey:key authorizationPrompt:nil];
+}
+
++(NSString *)stringForKey:(NSString *)key authorizationPrompt:(NSString *)prompt
+{
+    return [self objectForKey:key authorizationPrompt:prompt];
 }
 
 +(BOOL)setArray:(NSArray *)value forKey:(NSString *)key
@@ -158,8 +166,13 @@ static NSString *_bundleId = nil;
 
 +(NSArray *)arrayForKey:(NSString *)key
 {
+    return [self arrayForKey:key authorizationPrompt:nil];
+}
+
++(NSArray *)arrayForKey:(NSString *)key authorizationPrompt:(NSString *)prompt
+{
     NSArray *array = nil;
-    NSString *components = [self objectForKey:key];
+    NSString *components = [self objectForKey:key authorizationPrompt:prompt];
     if (components)
         array = [NSArray arrayWithArray:[components componentsSeparatedByString:kDelimiter]];
     
@@ -178,8 +191,13 @@ static NSString *_bundleId = nil;
 
 +(NSSet *)setForKey:(NSString *)key
 {
+    return [self setForKey:key authorizationPrompt:nil];
+}
+
++(NSSet *)setForKey:(NSString *)key authorizationPrompt:(NSString *)prompt
+{
     NSSet *set = nil;
-    NSArray *array = [self arrayForKey:key];
+    NSArray *array = [self arrayForKey:key authorizationPrompt:prompt];
     if (array)
         set = [NSSet setWithArray:array];
     
@@ -201,7 +219,12 @@ static NSString *_bundleId = nil;
 
 + (NSDictionary *)dictionaryForKey:(NSString *)key
 {
-    NSArray * keysAndValues = [self arrayForKey:key];
+    return [self dictionaryForKey:key authorizationPrompt:nil];
+}
+
++ (NSDictionary *)dictionaryForKey:(NSString *)key authorizationPrompt:(NSString *)prompt
+{
+    NSArray * keysAndValues = [self arrayForKey:key authorizationPrompt:prompt];
     
     if (!keysAndValues || keysAndValues.count == 0)
         return nil;
@@ -234,7 +257,12 @@ static NSString *_bundleId = nil;
 
 +(NSDate *)dateForKey:(NSString *)key
 {
-    NSString *dateString = [self objectForKey:key];
+    return [self dateForKey:key authorizationPrompt:nil];
+}
+
++(NSDate *)dateForKey:(NSString *)key authorizationPrompt:(NSString *)prompt
+{
+    NSString *dateString = [self objectForKey:key authorizationPrompt:prompt];
     if (dateString)
         return [NSDate dateWithTimeIntervalSinceReferenceDate:[dateString doubleValue]];
     return nil;
