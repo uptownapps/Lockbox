@@ -25,10 +25,8 @@ One caveat here is that the keychain is really not meant to store large chunks o
 
 Starting in iOS 8, you may require TouchID or Passcode in order to unlock keychain items. To use this, you should use the appropriate `set` method for the type of object you would like to save and pass either  `kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly` or `kSecAttrAccessibleWhenUnlocked` (which is the default accessibility if you don't provide one) as the assessibility parameter.
 
-+ `kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly`:
-++ Passcode must be set for this device. If passcode is removed, secure data with this accessibility level will be destroyed.
-+ `kSecAttrAccessibleWhenUnlocked`:
-++ If passcode is removed, secure data with this accessibility level will not be available, but is not destroyed. Data will become available again once a passcode is set again.
++ `kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly`: Passcode must be set for this device. If passcode is removed, secure data with this accessibility level will be destroyed.
++ `kSecAttrAccessibleWhenUnlocked`: If passcode is removed, secure data with this accessibility level will not be available, but is not destroyed. Data will become available again once a passcode is set again.
 
 ## Methods
 
