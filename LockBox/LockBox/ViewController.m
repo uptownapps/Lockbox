@@ -57,7 +57,7 @@
     
     switch (b.tag) {
         case kSaveAsString:
-            result = [Lockbox setString:value forKey:kMyKeyString];
+            result = [Lockbox setString:value forKey:kMyKeyString accessibility:kSecAttrAccessibleWhenUnlocked useAccessControl:NO];
             break;
             
         case kSaveAsArray:
@@ -68,7 +68,7 @@
                               [value stringByAppendingString:@" 2"], 
                               [value stringByAppendingString:@" 3"],
                               nil];
-            result = [Lockbox setArray:array forKey:kMyKeyArray];
+            result = [Lockbox setArray:array forKey:kMyKeyArray accessibility:kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly];
             break;
         }
             
@@ -80,7 +80,7 @@
                           [value stringByAppendingString:@" 2"], 
                           [value stringByAppendingString:@" 3"],
                           nil];
-            result = [Lockbox setSet:set forKey:kMyKeySet];
+            result = [Lockbox setSet:set forKey:kMyKeySet accessibility:kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly];
             break;
         }
             
@@ -90,7 +90,7 @@
             NSDictionary * dictionary = value ? @{@"key 1" : [value stringByAppendingString:@" 1"],
                                                   @"key 2" : [value stringByAppendingString:@" 2"],
                                                   @"key 3" : [value stringByAppendingString:@" 3"]} : nil;
-            result = [Lockbox setDictionary:dictionary forKey:kMyKeyDictionary];
+            result = [Lockbox setDictionary:dictionary forKey:kMyKeyDictionary accessibility:kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly];
             break;
         }
             
@@ -113,7 +113,7 @@
     
     switch (b.tag) {
         case kSaveAsString:
-            value = [Lockbox stringForKey:kMyKeyString];
+            value = [Lockbox stringForKey:kMyKeyString authorizationPrompt:@"To read the string"];
             break;
             
         case kSaveAsArray:
@@ -142,6 +142,45 @@
     }
     
     fetchedValueLabel.text = value;
+}
+
+-(IBAction)deleteButtonPressed:(id)sender
+{
+    [inputTextField resignFirstResponder];
+    
+    UIButton *b = (UIButton *)sender;
+    BOOL result = NO;
+    
+    switch (b.tag) {
+        case kSaveAsString:
+            result = [Lockbox setString:nil forKey:kMyKeyString accessibility:kSecAttrAccessibleWhenUnlocked useAccessControl:NO];
+            break;
+            
+        case kSaveAsArray:
+        {
+            result = [Lockbox setArray:nil forKey:kMyKeyArray accessibility:kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly];
+            break;
+        }
+            
+        case kSaveAsSet:
+        {
+            result = [Lockbox setSet:nil forKey:kMyKeySet accessibility:kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly];
+            break;
+        }
+            
+        case kSaveAsDictionary:
+        {
+            result = [Lockbox setDictionary:nil forKey:kMyKeyDictionary accessibility:kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly];
+            break;
+        }
+            
+        default:
+            break;
+    }
+    
+    statusLabel.text = [NSString stringWithFormat:@"%@",
+                        (result ? @"Deleted!" : @"Delete failed.")];
+    
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation

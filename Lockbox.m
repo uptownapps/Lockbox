@@ -63,7 +63,11 @@ static NSString *_bundleId = nil;
     return [_bundleId stringByAppendingFormat:@".%@", key];
 }
 
-+(BOOL)setObject:(NSString *)obj forKey:(NSString *)key accessibility:(CFTypeRef)accessibility
++(BOOL)setObject:(NSString *)obj forKey:(NSString *)key accessibility:(CFTypeRef)accessibility {
+    return [self setObject:obj forKey:key accessibility:accessibility useAccessControl:NO];
+}
+
++(BOOL)setObject:(NSString *)obj forKey:(NSString *)key accessibility:(CFTypeRef)accessibility useAccessControl:(BOOL)accessControl
 {
     OSStatus status;
     
@@ -79,19 +83,59 @@ static NSString *_bundleId = nil;
     
     NSMutableDictionary *dict = [self _service];
     [dict setObject: hierKey forKey: (LOCKBOX_ID) kSecAttrService];
-    [dict setObject: (LOCKBOX_ID)(accessibility) forKey: (LOCKBOX_ID) kSecAttrAccessible];
     [dict setObject: [obj dataUsingEncoding:NSUTF8StringEncoding] forKey: (LOCKBOX_ID) kSecValueData];
     
+    // If using access control, create an ACL and set the passed accessibility parameter
+    if (accessControl) {
+        CFErrorRef error = NULL;
+        SecAccessControlRef sacObject =
+            SecAccessControlCreateWithFlags(kCFAllocatorDefault,
+                                            accessibility,
+                                            kSecAccessControlUserPresence, &error);
+        if(sacObject == NULL || error != NULL) {
+            NSLog(@"can't create sacObject: %@", error);
+            return NO;
+        }
+        [dict setObject: (LOCKBOX_ID) sacObject forKey: (LOCKBOX_ID) kSecAttrAccessControl];
+        [dict setObject:@YES forKey: (LOCKBOX_ID) kSecUseNoAuthenticationUI];
+    } else {
+        [dict setObject: (LOCKBOX_ID) accessibility forKey: (LOCKBOX_ID) kSecAttrAccessible];
+    }
+    
     status = SecItemAdd ((LOCKBOX_DICTREF) dict, NULL);
-    if (status == errSecDuplicateItem) {
-        [dict removeObjectForKey: (LOCKBOX_ID) kSecValueData];
-        NSDictionary *changes = @{ (LOCKBOX_ID) kSecValueData: [obj dataUsingEncoding:NSUTF8StringEncoding] };
-        status = SecItemUpdate((LOCKBOX_DICTREF) dict, (LOCKBOX_DICTREF) changes);
-        if (status != errSecSuccess)
-            DLog(@"SecItemUpdate failed for key %@: %d", hierKey, (int)status);
+    // We are suppressing the UI for save - will return Not Allowed if passcode set and exists (duplicate)
+    // Interaction Not Allowed will also be returned if no passcode set
+    if (status == errSecDuplicateItem || status == errSecInteractionNotAllowed) {
+        return [self updateObject:obj forKey:key authoriationPrompt:nil];
     }
     if (status != errSecSuccess)
         DLog(@"SecItemAdd failed for key %@: %d", hierKey, (int)status);
+    
+    return (status == errSecSuccess);
+}
+
++(BOOL)updateObject:(NSString *)obj forKey:(NSString *)key authoriationPrompt:(NSString*)prompt
+{
+    NSString *hierKey = [self _hierarchicalKey:key];
+    NSDictionary *query;
+    if (prompt) {
+        query = @{
+                 (__bridge id)kSecClass: (__bridge id)kSecClassGenericPassword,
+                 (__bridge id)kSecAttrService: hierKey,
+                 (__bridge id)kSecUseOperationPrompt: prompt
+                 };
+    } else {
+        query = @{
+                  (__bridge id)kSecClass: (__bridge id)kSecClassGenericPassword,
+                  (__bridge id)kSecAttrService: hierKey
+                  };
+    }
+    
+    NSDictionary *changes = @{
+                              (__bridge id)kSecValueData: [obj dataUsingEncoding:NSUTF8StringEncoding]
+                              };
+    
+    OSStatus status = SecItemUpdate((__bridge CFDictionaryRef)query, (__bridge CFDictionaryRef)changes);
     
     return (status == errSecSuccess);
 }
@@ -140,6 +184,10 @@ static NSString *_bundleId = nil;
 +(BOOL)setString:(NSString *)value forKey:(NSString *)key accessibility:(CFTypeRef)accessibility
 {
     return [self setObject:value forKey:key accessibility:accessibility];
+}
+
++(BOOL)setString:(NSString *)value forKey:(NSString *)key accessibility:(CFTypeRef)accessibility useAccessControl:(BOOL)accessControl {
+    return [self setObject:value forKey:key accessibility:accessibility useAccessControl:accessControl];
 }
 
 +(NSString *)stringForKey:(NSString *)key

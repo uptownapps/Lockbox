@@ -14,6 +14,7 @@
 /* String */
 +(BOOL)setString:(NSString *)value forKey:(NSString *)key;
 +(BOOL)setString:(NSString *)value forKey:(NSString *)key accessibility:(CFTypeRef)accessibility;
++(BOOL)setString:(NSString *)value forKey:(NSString *)key accessibility:(CFTypeRef)accessibility useAccessControl:(BOOL)accessControl;
 +(NSString *)stringForKey:(NSString *)key;
 +(NSString *)stringForKey:(NSString *)key authorizationPrompt:(NSString *)prompt;
 
