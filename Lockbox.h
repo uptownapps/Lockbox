@@ -7,38 +7,38 @@
 
 @interface Lockbox : NSObject
 
-/*
- * For use with TouchID / Passcode, use accessibility value kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly
- */
-
-/* String */
+// String
 +(BOOL)setString:(NSString *)value forKey:(NSString *)key;
 +(BOOL)setString:(NSString *)value forKey:(NSString *)key accessibility:(CFTypeRef)accessibility;
 +(BOOL)setString:(NSString *)value forKey:(NSString *)key accessibility:(CFTypeRef)accessibility useAccessControl:(BOOL)accessControl;
 +(NSString *)stringForKey:(NSString *)key;
 +(NSString *)stringForKey:(NSString *)key authorizationPrompt:(NSString *)prompt;
 
-/* Array */
+// Array
 +(BOOL)setArray:(NSArray *)value forKey:(NSString *)key;
 +(BOOL)setArray:(NSArray *)value forKey:(NSString *)key accessibility:(CFTypeRef)accessibility;
++(BOOL)setArray:(NSArray *)value forKey:(NSString *)key accessibility:(CFTypeRef)accessibility useAccessControl:(BOOL)accessControl;
 +(NSArray *)arrayForKey:(NSString *)key;
 +(NSArray *)arrayForKey:(NSString *)key authorizationPrompt:(NSString *)prompt;
 
-/* Set */
+// Set
 +(BOOL)setSet:(NSSet *)value forKey:(NSString *)key;
 +(BOOL)setSet:(NSSet *)value forKey:(NSString *)key accessibility:(CFTypeRef)accessibility;
++(BOOL)setSet:(NSSet *)value forKey:(NSString *)key accessibility:(CFTypeRef)accessibility useAccessControl:(BOOL)accessControl;
 +(NSSet *)setForKey:(NSString *)key;
 +(NSSet *)setForKey:(NSString *)key authorizationPrompt:(NSString *)prompt;
 
-/* Dictionary */
+// Dictionary
 +(BOOL)setDictionary:(NSDictionary *)value forKey:(NSString *)key;
 +(BOOL)setDictionary:(NSDictionary *)value forKey:(NSString *)key accessibility:(CFTypeRef)accessibility;
++(BOOL)setDictionary:(NSDictionary *)value forKey:(NSString *)key accessibility:(CFTypeRef)accessibility useAccessControl:(BOOL)accessControl;
 +(NSDictionary *)dictionaryForKey:(NSString *)key;
 +(NSDictionary *)dictionaryForKey:(NSString *)key authorizationPrompt:(NSString *)prompt;
 
-/* Date */
+// Date
 +(BOOL)setDate:(NSDate *)value forKey:(NSString *)key;
 +(BOOL)setDate:(NSDate *)value forKey:(NSString *)key accessibility:(CFTypeRef)accessibility;
++(BOOL)setDate:(NSDate *)value forKey:(NSString *)key accessibility:(CFTypeRef)accessibility useAccessControl:(BOOL)accessControl;
 +(NSDate *)dateForKey:(NSString *)key;
 +(NSDate *)dateForKey:(NSString *)key authorizationPrompt:(NSString *)prompt;
 

@@ -176,6 +176,12 @@ static NSString *_bundleId = nil;
     return s;    
 }
 
+
+#pragma mark - Public API
+
+
+#pragma mark - String
+
 +(BOOL)setString:(NSString *)value forKey:(NSString *)key
 {
     return [self setString:value forKey:key accessibility:DEFAULT_ACCESSIBILITY];
@@ -200,6 +206,8 @@ static NSString *_bundleId = nil;
     return [self objectForKey:key authorizationPrompt:prompt];
 }
 
+#pragma mark - Array
+
 +(BOOL)setArray:(NSArray *)value forKey:(NSString *)key
 {
     return [self setArray:value forKey:key accessibility:DEFAULT_ACCESSIBILITY];
@@ -207,11 +215,16 @@ static NSString *_bundleId = nil;
 
 +(BOOL)setArray:(NSArray *)value forKey:(NSString *)key accessibility:(CFTypeRef)accessibility
 {
+    return [self setArray:value forKey:key accessibility:accessibility useAccessControl:NO];
+}
+
++(BOOL)setArray:(NSArray *)value forKey:(NSString *)key accessibility:(CFTypeRef)accessibility useAccessControl:(BOOL)accessControl
+{
     NSString *components = nil;
     if (value != nil && value.count > 0) {
         components = [value componentsJoinedByString:kDelimiter];
     }
-    return [self setObject:components forKey:key accessibility:accessibility];
+    return [self setObject:components forKey:key accessibility:accessibility useAccessControl:accessControl];
 }
 
 +(NSArray *)arrayForKey:(NSString *)key
@@ -229,6 +242,8 @@ static NSString *_bundleId = nil;
     return array;
 }
 
+#pragma mark - Set
+
 +(BOOL)setSet:(NSSet *)value forKey:(NSString *)key
 {
     return [self setSet:value forKey:key accessibility:DEFAULT_ACCESSIBILITY];
@@ -236,7 +251,12 @@ static NSString *_bundleId = nil;
 
 +(BOOL)setSet:(NSSet *)value forKey:(NSString *)key accessibility:(CFTypeRef)accessibility
 {
-    return [self setArray:[value allObjects] forKey:key accessibility:accessibility];
+    return [self setSet:value forKey:key accessibility:accessibility useAccessControl:NO];
+}
+
++(BOOL)setSet:(NSSet *)value forKey:(NSString *)key accessibility:(CFTypeRef)accessibility useAccessControl:(BOOL)accessControl
+{
+    return [self setArray:[value allObjects] forKey:key accessibility:accessibility useAccessControl:accessControl];
 }
 
 +(NSSet *)setForKey:(NSString *)key
@@ -254,6 +274,8 @@ static NSString *_bundleId = nil;
     return set;
 }
 
+#pragma mark - Dictionary
+
 + (BOOL)setDictionary:(NSDictionary *)value forKey:(NSString *)key
 {
     return [self setDictionary:value forKey:key accessibility:DEFAULT_ACCESSIBILITY];
@@ -261,10 +283,15 @@ static NSString *_bundleId = nil;
 
 + (BOOL)setDictionary:(NSDictionary *)value forKey:(NSString *)key accessibility:(CFTypeRef)accessibility
 {
+    return [self setDictionary:value forKey:key accessibility:accessibility useAccessControl:NO];
+}
+
++ (BOOL)setDictionary:(NSDictionary *)value forKey:(NSString *)key accessibility:(CFTypeRef)accessibility useAccessControl:(BOOL)accessControl
+{
     NSMutableArray * keysAndValues = [NSMutableArray arrayWithArray:value.allKeys];
     [keysAndValues addObjectsFromArray:value.allValues];
     
-    return [self setArray:keysAndValues forKey:key accessibility:accessibility];
+    return [self setArray:keysAndValues forKey:key accessibility:accessibility useAccessControl:accessControl];
 }
 
 + (NSDictionary *)dictionaryForKey:(NSString *)key
@@ -292,6 +319,8 @@ static NSString *_bundleId = nil;
                                        forKeys:[keysAndValues subarrayWithRange:keys]];
 }
 
+#pragma mark - Date
+
 +(BOOL)setDate:(NSDate *)value forKey:(NSString *)key
 {
     return [self setDate:value forKey:key accessibility:DEFAULT_ACCESSIBILITY];
@@ -299,10 +328,15 @@ static NSString *_bundleId = nil;
 
 +(BOOL)setDate:(NSDate *)value forKey:(NSString *)key accessibility:(CFTypeRef)accessibility
 {
+    return [self setDate:value forKey:key accessibility:accessibility useAccessControl:NO];
+}
+
++(BOOL)setDate:(NSDate *)value forKey:(NSString *)key accessibility:(CFTypeRef)accessibility useAccessControl:(BOOL)accessControl
+{
     if (!value)
         return [self setObject:nil forKey:key accessibility:accessibility];
     NSNumber *rti = [NSNumber numberWithDouble:[value timeIntervalSinceReferenceDate]];
-    return [self setObject:[rti stringValue] forKey:key accessibility:accessibility];
+    return [self setObject:[rti stringValue] forKey:key accessibility:accessibility useAccessControl:accessControl];
 }
 
 +(NSDate *)dateForKey:(NSString *)key
